@@ -8,7 +8,7 @@ This file creates your application.
 from app import app, db
 from flask import render_template, request, jsonify, send_file, session, send_from_directory
 import os
-# from app.models import Movie
+from app.models import Post, Likes, Follows, UserProfile
 # from app.forms import MovieForm
 from flask_wtf.csrf import generate_csrf
 from werkzeug.utils import secure_filename

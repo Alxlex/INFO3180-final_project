@@ -2,7 +2,6 @@
 from . import db
 from werkzeug.security import generate_password_hash
 
-
 # class Post(db.Model):
 class Post(db.Model):
      __tablename__ = 'post'
@@ -12,13 +11,11 @@ class Post(db.Model):
      user_id = db.Column(db.Integer)
      created_on = db.Column(db.DateTime)
     
-    
      def __init__(self, caption, photo, user_id, created_on):
         self.caption=caption
         self.photo=photo
         self.user_id=user_id
         self.created_on = created_on
-
 
 # class Likes(db.Model):
 class Likes(db.Model):
@@ -27,12 +24,9 @@ class Likes(db.Model):
      post_id = db.Column(db.Integer)
      user_id = db.Column(db.Integer)
      
-    
-    
      def __init__(self,post_id,user_id):
         self.post_id=post_id
         self.user_id = user_id
-
 
 # class Follows(db.Model):
 class Follows(db.Model):
@@ -41,8 +35,6 @@ class Follows(db.Model):
      followers_id = db.Column(db.Integer)
      user_id = db.Column(db.Integer)
      
-    
-    
      def __init__(self,post_id,user_id):
         self.posts_id=user_id
         self.user_id = user_id
@@ -62,7 +54,6 @@ class UserProfile(db.Model):
     profile_photo = db.Column(db.String(255))
     joined_on = db.Column(db.DateTime)
  
-    
     def __init__(self, username, password, firstname, lastname, email,location,biography,profile_photo,joined_on):
         self.username = username
         self.password = generate_password_hash(password, method='pbkdf2:sha256')
@@ -74,8 +65,6 @@ class UserProfile(db.Model):
         self.profile_photo=profile_photo
         self.joined_on=joined_on   
         
-        
-         
        
 def is_authenticated(self):
         return True
@@ -93,4 +82,4 @@ def get_id(self):
             return str(self.id)  # python 3 support
 
 def __repr__(self):
-        return '<User %r>' % (self.username)
+        return '<UserProfile %r>' % (self.username)
