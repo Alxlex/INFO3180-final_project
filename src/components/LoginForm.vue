@@ -1,0 +1,65 @@
+<template>
+        <div v-if="msg != null">
+        <div v-if="msg['errors']" class="alert alert-danger" role="alert">
+            <li v-for="err in msg['errors']"> {{ err }} </li>
+        </div>
+        <div v-else class="alert alert-success" role="alert">
+            <p>{{ msg['message'] }}</p>
+        </div>
+    </div>
+    <h1>Login</h1>
+    <form @submit.prevent="login" method="post" id="loginForm">
+        <div class="form-group mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" placeholder="Please enter your username">
+        </div>
+        <div class="form-group mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="text" name="password" class="form-control" placeholder="Please enter your password">
+        </div>
+        <button class="btn btn-primary" type="submit">Login</button>
+    </form>
+</template>
+
+<script setup>
+    import { ref, onMounted } from "vue";
+
+    onMounted(() =>{
+        getCsrfToken();
+    });
+
+    const msg = ref(null);
+    let csrf_token = ref("")
+
+    function getCsrfToken(){
+        // fetch('/')
+        // .then((response) => response.json())
+        // .then((date) => {
+        //     console.log(data)
+        //     csrf_token.value = data.csrf_token;
+        // })
+    }
+
+    function login(){
+        let loginForm = document.getElementById('loginForm')
+        let form_data = new FormData(loginForm);
+
+        fetch('/api/v1/auth/login', {
+            method: 'POST',
+            body: form_data,
+            headers: {
+                'X-CSRFToken': csrf_token.value
+            }
+        })
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data){
+            console.log(data)
+            msg.value = data;
+        })
+        .catch(function (error) {
+            console.log(error)
+        });
+    }
+</script>
