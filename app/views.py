@@ -19,13 +19,37 @@ from werkzeug.utils import secure_filename
 
 @app.route('/')
 def index():
-    return jsonify(message="This is the beginning of our API")
+    return jsonify(message="Share photos of your favourite moments with friends, family and the world.")
 
-# @app.route('/api/v1/csrf-token', methods=['GET'])
-# def get_csrf():
-#     return jsonify({'csrf_token': generate_csrf()})
+@app.route('/api/v1/csrf-token', methods=['GET'])
+def get_csrf():
+    return jsonify({'csrf_token': generate_csrf()})
 
-# @app.route('/api/v1/posters/<filename>')
+# @app.route('/api/v1/register', methods=['POST'])
+# def register():
+#     return jsonify()
+
+# @app.route('/api/v1/auth/login', methods=['POST'])
+# def login():
+#     return jsonify()
+
+# @app.route('/api/v1/users/<user_id>/posts', methods=['GET', 'POST'])
+# def register():
+#     return jsonify()
+
+# @app.route('/api/users/<user_id>/follow', methods=['POST'])
+# def register():
+#     return jsonify()
+
+# @app.route('/api/v1/posts', methods=['POST'])
+# def register():
+#     return jsonify()
+
+# @app.route('/api/v1/posts/<post_id>/like', methods=['POST'])
+# def register():
+#     return jsonify()
+
+# @app.route('/api/v1/posters/<filename>') #MAY BE USED TO FIND PICTURES, CHANGE TO FIT CURRENT CODE
 # def get_image(filename):
 #     print(filename)
 #     return send_from_directory(os.path.join(os.getcwd(),app.config['UPLOAD_FOLDER']),filename)

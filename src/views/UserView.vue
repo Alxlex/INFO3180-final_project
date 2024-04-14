@@ -19,11 +19,13 @@
 <script setup>
     import { ref, onMounted } from "vue";
 
-    onMounted(() => {
+    const user = ref(null)
 
+    onMounted(() => {
+        getUser();
     });
 
-    function() {
-
+    function getUser() {
+        
     }
 </script>

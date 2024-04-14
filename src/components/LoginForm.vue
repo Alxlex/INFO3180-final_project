@@ -25,7 +25,7 @@
     import { ref, onMounted } from "vue";
 
     onMounted(() =>{
-        getCsrfToken();
+        // getCsrfToken();
     });
 
     const msg = ref(null);

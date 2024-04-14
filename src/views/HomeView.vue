@@ -1,8 +1,5 @@
 <script setup>
-import { ref } from "vue";
-
-let message = ref("Share photos of your favourite moments with friends, family and the world.")
-
+  const welcomeMessage = "Share photos of your favourite moments with friends, family and the world.";
 </script>
 
 <template>
@@ -15,7 +12,7 @@ let message = ref("Share photos of your favourite moments with friends, family a
           <h1>Photogram</h1>
         </div>
         <hr>
-        <p>{{ message }}</p>
+        <p>{{ welcomeMessage }}</p>
         <button @click="$router.push('/register')" type="button" class="btn btn-primary">Register</button>
         <button @click="$router.push('/login')" type="button" class="btn btn-secondary">Login</button>
       </div>
