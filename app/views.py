@@ -12,6 +12,8 @@ from app.models import Post, Likes, Follows, UserProfile
 # from app.forms import MovieForm
 from flask_wtf.csrf import generate_csrf
 from werkzeug.utils import secure_filename
+from datetime import datetime
+import jwt
 
 ###
 # Routing for your application.
@@ -25,29 +27,126 @@ def index():
 def get_csrf():
     return jsonify({'csrf_token': generate_csrf()})
 
-# @app.route('/api/v1/register', methods=['POST'])
-# def register():
-#     return jsonify()
+# API ROUTES
 
-# @app.route('/api/v1/auth/login', methods=['POST'])
-# def login():
-#     return jsonify()
+@app.route('/api/v1/register', methods=['POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit() and request.method == "POST":
+        # Gather data from the form
+        username = form.username.data
+        password = form.password.data
+        first_name = form.firstName.data
+        last_name = form.lastname.data
+        email = form.email.data
+        location = form.location.data
+        biography = form.biography.data
+        profile_photo = form.profile_photo.data
+        joined_on = datetime.datetime.now()
 
-# @app.route('/api/v1/users/<user_id>/posts', methods=['GET', 'POST'])
-# def register():
-#     return jsonify()
+        if not username or not email or not password:
+            return jsonify({'error': 'Username, email, and password are required'}), 400
 
-# @app.route('/api/users/<user_id>/follow', methods=['POST'])
-# def register():
-#     return jsonify()
+    existing_user = User.query.filter_by(email=email).first()
+    if existing_user:
+        return jsonify({'error': 'User with this email already exists'}), 409
 
-# @app.route('/api/v1/posts', methods=['POST'])
-# def register():
-#     return jsonify()
+    new_user = User(username=username, 
+                    password=generate_password_hash(password), 
+                    firstname=first_name, lastname=last_name, 
+                    email=email, 
+                    location=location, 
+                    biography=biography, 
+                    profile_photo=profile_photo, 
+                    joined_on=joined_on)
+    db.session.add(new_user)
+    db.session.commit()
 
-# @app.route('/api/v1/posts/<post_id>/like', methods=['POST'])
-# def register():
-#     return jsonify()
+
+
+        # Flash a success message and redirect to a different page
+    flash('Registration successful. You can now log in!', 'success')
+    return redirect(url_for('login'))
+
+@app.route('/api/v1/auth/login', methods=['POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit() and request.method == "POST":
+    
+        username = form.username.data
+        password = form.password.data
+
+    user = User.query.filter_by(username=username).first()
+    if not user or not check_password_hash(user.password, password):
+        return jsonify({'error': 'Invalid username or password'}), 401
+
+    token = jwt.encode({'user_id': user.id}, app.config['SECRET_KEY'], algorithm='HS256')
+    return jsonify({'token': token})
+
+@app.route('/api/v1/auth/logout', methods=['POST'])
+def logout():
+    return jsonify({'message': 'Logged out successfully'})
+
+@app.route('/api/v1/users/<int:user_id>/posts', methods=['POST'])
+def create_post(user_id):
+    form = PostForm()
+    if form.validate_on_submit() and request.method == "POST":
+
+        caption = form.caption.data
+        photo = form.photo.data
+    
+    post = Post(caption=caption, 
+                photo=photo, 
+                user_id=user_id, 
+                created_on=datetime.datetime.now())
+    db.session.add(post)
+    db.session.commit()
+
+    return jsonify({'message': 'Post created successfully'}), 201
+
+@app.route('/api/v1/users/<int:user_id>/posts', methods=['POST'])
+def get_user_post(user_id):
+    post = Post.query.filter_by(user_id=user_id).all()
+    return jsonify([post.to_dic() for post in posts])
+
+@app.route('/api/users/<user_id>/follow', methods=['POST'])
+def follow_user(user_id):
+    form = PostForm()
+    if form.validate_on_submit() and request.method == "POST":
+        follower_id = form.user_id.data
+    
+    follow = Follow.query.filter_by(follower_id=follower_id, user_id=user_id).first()
+    if not follow:
+        follow = Follow(follower_id=follower_id, user_id=user_id)
+        db.session.add(follow)
+        db.session.commit()
+        return jsonify({'message': 'User followed successfully'})
+    else:
+        db.session.delete(follow)
+        db.session.commit()
+        return jsonify({'message': 'User unfollowed successfully'})
+
+@app.route('/api/v1/posts', methods=['GET'])
+def get_all_post():
+    posts = Post.query.all()
+    return jsonify([post.to_dict() for post in posts])
+
+@app.route('/api/v1/posts/<post_id>/like', methods=['POST'])
+def likepost(post_id):
+    form = PostForm()
+    if form.validate_on_submit() and request.method == "POST":
+        user_id = form.user_id.data
+    
+    like = Like.query.filter_by(post_id=post_id, user_id=user_id).first()
+    if not like:
+        like = Like(post_id=post_id, user_id=user_id)
+        db.session.add(like)
+        db.session.commit()
+        return jsonify({'message': 'Post liked successfully'})
+    else:
+        db.session.delete(like)
+        db.session.commit()
+        return jsonify({'message': 'Post unlike successfully'})
 
 # @app.route('/api/v1/posters/<filename>') #MAY BE USED TO FIND PICTURES, CHANGE TO FIT CURRENT CODE
 # def get_image(filename):
