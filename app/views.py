@@ -9,10 +9,10 @@ from app import app, db
 from flask import render_template, request, jsonify, send_file, session, send_from_directory
 import os
 from app.models import Post, Likes, Follows, UserProfile
-# from app.forms import MovieForm
+from app.forms import RegisterForm, LoginForm, PostForm
 from flask_wtf.csrf import generate_csrf
 from werkzeug.utils import secure_filename
-from datetime import datetime
+import datetime
 import jwt
 
 ###
@@ -32,41 +32,40 @@ def get_csrf():
 @app.route('/api/v1/register', methods=['POST'])
 def register():
     form = RegisterForm()
-    if form.validate_on_submit() and request.method == "POST":
+
+    if form.validate_on_submit():
         # Gather data from the form
         username = form.username.data
         password = form.password.data
-        first_name = form.firstName.data
-        last_name = form.lastname.data
+        firstname = form.firstname.data
+        lastname = form.lastname.data
         email = form.email.data
         location = form.location.data
         biography = form.biography.data
         profile_photo = form.profile_photo.data
         joined_on = datetime.datetime.now()
+        return jsonify({"message":"Successfully created account"})
+    else:
+        return jsonify({"errors": form_errors(form)})
+    # existing_user = User.query.filter_by(email=email).first()
+    # if existing_user:
+    #     return jsonify({'error': 'User with this email already exists'}), 409
 
-        if not username or not email or not password:
-            return jsonify({'error': 'Username, email, and password are required'}), 400
-
-    existing_user = User.query.filter_by(email=email).first()
-    if existing_user:
-        return jsonify({'error': 'User with this email already exists'}), 409
-
-    new_user = User(username=username, 
-                    password=generate_password_hash(password), 
-                    firstname=first_name, lastname=last_name, 
-                    email=email, 
-                    location=location, 
-                    biography=biography, 
-                    profile_photo=profile_photo, 
-                    joined_on=joined_on)
-    db.session.add(new_user)
-    db.session.commit()
+    # new_user = User(username=username, 
+    #                 password=generate_password_hash(password), 
+    #                 firstname=first_name, lastname=last_name, 
+    #                 email=email, 
+    #                 location=location, 
+    #                 biography=biography, 
+    #                 profile_photo=profile_photo, 
+    #                 joined_on=joined_on)
+    # db.session.add(new_user)
+    # db.session.commit()
 
 
 
         # Flash a success message and redirect to a different page
-    flash('Registration successful. You can now log in!', 'success')
-    return redirect(url_for('login'))
+    
 
 @app.route('/api/v1/auth/login', methods=['POST'])
 def login():

@@ -8,7 +8,7 @@ class RegisterForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired()])
     password = PasswordField('Password', validators=[InputRequired()])
 
-    firstName= StringField('First Name', validators=[InputRequired()])
+    firstname= StringField('First Name', validators=[InputRequired()])
     lastname=StringField('Lastname', validators=[InputRequired()])
     email=StringField('Email', validators=[InputRequired()])
     location=StringField('Location', validators=[InputRequired()])
@@ -22,7 +22,7 @@ class LoginForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired()])
     password = PasswordField('Password', validators=[InputRequired()])
 
-class PostForm(Flaskform):
+class PostForm(FlaskForm):
     caption=photo =StringField('caption', validators=[InputRequired()])
     photo = FileField('Photo', validators=[
     FileRequired(),
