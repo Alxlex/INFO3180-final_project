@@ -4,8 +4,6 @@ from wtforms.validators import InputRequired, NumberRange
 from wtforms import IntegerField, PasswordField, StringField, TextAreaField
 from flask_wtf.file import FileAllowed, FileRequired, FileField
 
-# class ():
-.3
 class RegisterForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired()])
     password = PasswordField('Password', validators=[InputRequired()])
@@ -20,11 +18,9 @@ class RegisterForm(FlaskForm):
     FileRequired(),
     FileAllowed(['jpg', 'png'], 'Images only!')])
 
-
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired()])
     password = PasswordField('Password', validators=[InputRequired()])
-
 
 class PostForm(Flaskform):
     caption=photo =StringField('caption', validators=[InputRequired()])
@@ -32,9 +28,8 @@ class PostForm(Flaskform):
     FileRequired(),
     FileAllowed(['jpg', 'png'], 'Images only!')])
     user_id=IntegerField('User ID', validators=[InputRequired(), NumberRange(min=1)])
-    #created_on=
     
-class UploadForm(FlaskForm):
-    photo = FileField('Photo', validators=[
-    FileRequired(),
-    FileAllowed(['jpg', 'png'], 'Images only!')])
+# class UploadForm(FlaskForm):
+#     photo = FileField('Photo', validators=[
+#     FileRequired(),
+#     FileAllowed(['jpg', 'png'], 'Images only!')])
