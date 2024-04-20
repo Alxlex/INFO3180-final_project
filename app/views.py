@@ -8,6 +8,7 @@ This file creates your application.
 from app import app, db
 from flask import render_template, request, jsonify, send_file, session, send_from_directory
 import os
+from werkzeug.security import check_password_hash
 from app.models import Post, Likes, Follows, UserProfile
 from app.forms import RegisterForm, LoginForm, PostForm
 from flask_wtf.csrf import generate_csrf
@@ -90,14 +91,15 @@ def login():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
+
+        user = db.session.execute(db.select(UserProfile).filter_by(username=username)).scalar()
+        print(user)
+        if not user or not check_password_hash(user.password, password):
+            return jsonify({'errors':'Invalid username or password'}), 401
+        token = jwt.encode({'user_id':user.id}, app.config['SECRET_KEY'], algorithm='HS256')
+        return jsonify({'token':token})
     else:
         return jsonify({"errors": form_errors(form)}), 400
-    # user = User.query.filter_by(username=username).first()
-    # if not user or not check_password_hash(user.password, password):
-    #     return jsonify({'error': 'Invalid username or password'}), 401
-
-    # token = jwt.encode({'user_id': user.id}, app.config['SECRET_KEY'], algorithm='HS256')
-    # return jsonify({'token': token})
 
 @app.route('/api/v1/auth/logout', methods=['POST'])
 def logout():

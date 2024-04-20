@@ -1,10 +1,10 @@
 <template>
-        <div v-if="msg != null">
+    <div v-if="msg != null">
         <div v-if="msg['errors']" class="alert alert-danger" role="alert">
-            <li v-for="err in msg['errors']"> {{ err }} </li>
+            <p> {{ msg['errors'] }} </p>
         </div>
         <div v-else class="alert alert-success" role="alert">
-            <p>{{ msg['message'] }}</p>
+            <p>{{ msg['token'] }}</p>
         </div>
     </div>
     <h1>Login</h1>
@@ -23,21 +23,23 @@
 
 <script setup>
     import { ref, onMounted } from "vue";
+    import { useRouter } from "vue-router";
 
     onMounted(() =>{
-        // getCsrfToken();
+        getCsrf();
     });
 
-    const msg = ref(null);
+    const msg = ref(null)
+    const router = useRouter();
     let csrf_token = ref("")
 
-    function getCsrfToken(){
-        // fetch('/')
-        // .then((response) => response.json())
-        // .then((date) => {
-        //     console.log(data)
-        //     csrf_token.value = data.csrf_token;
-        // })
+    function getCsrf(){
+        fetch('/api/v1/csrf-token')
+        .then((response) => response.json())
+        .then((data) => {
+            console.log(data)
+            csrf_token.value = data.csrf_token;
+        })
     }
 
     function login(){
@@ -57,6 +59,11 @@
         .then(function (data){
             console.log(data)
             msg.value = data;
+
+            if(msg.value['token']){
+                localStorage.setItem('token', msg.value['token'])
+                router.replace({ path: '/explore' })
+            }
         })
         .catch(function (error) {
             console.log(error)
