@@ -32,7 +32,6 @@ def get_csrf():
 @app.route('/api/v1/register', methods=['POST'])
 def register():
     form = RegisterForm()
-
     if form.validate_on_submit():
         # Gather data from the form
         username = form.username.data
@@ -40,47 +39,65 @@ def register():
         firstname = form.firstname.data
         lastname = form.lastname.data
         email = form.email.data
+        
+        errors = []
+        existing_email = db.session.execute(db.select(UserProfile).filter_by(email=email)).scalar()
+        if existing_email:
+            errors.append("Email already exists")
+
+        existing_username = db.session.execute(db.select(UserProfile).filter_by(username=username)).scalar()
+        if existing_username:
+            errors.append("Username already exists")
+        
+        if errors != []:
+            return jsonify({"errors":errors}), 400
+
         location = form.location.data
         biography = form.biography.data
         profile_photo = form.profile_photo.data
+        filename = secure_filename(profile_photo.filename)
+
+        profile_photo.save(
+            os.path.join(
+            app.config["UPLOAD_FOLDER"],
+            filename)
+        )
+
         joined_on = datetime.datetime.now()
-        return jsonify({"message":"Successfully created account"})
+
+        user = UserProfile(
+            username,
+            password,
+            firstname,
+            lastname,
+            email,
+            location,
+            biography,
+            filename,
+            joined_on
+        )
+
+        db.session.add(user)
+        db.session.commit()
+
+        return jsonify({"message":"Successfully created account"}), 201
     else:
-        return jsonify({"errors": form_errors(form)})
-    # existing_user = User.query.filter_by(email=email).first()
-    # if existing_user:
-    #     return jsonify({'error': 'User with this email already exists'}), 409
-
-    # new_user = User(username=username, 
-    #                 password=generate_password_hash(password), 
-    #                 firstname=first_name, lastname=last_name, 
-    #                 email=email, 
-    #                 location=location, 
-    #                 biography=biography, 
-    #                 profile_photo=profile_photo, 
-    #                 joined_on=joined_on)
-    # db.session.add(new_user)
-    # db.session.commit()
-
-
-
-        # Flash a success message and redirect to a different page
-    
+        return jsonify({"errors":form_errors(form)}), 400
 
 @app.route('/api/v1/auth/login', methods=['POST'])
 def login():
     form = LoginForm()
-    if form.validate_on_submit() and request.method == "POST":
-    
+    if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
+    else:
+        return jsonify({"errors": form_errors(form)}), 400
+    # user = User.query.filter_by(username=username).first()
+    # if not user or not check_password_hash(user.password, password):
+    #     return jsonify({'error': 'Invalid username or password'}), 401
 
-    user = User.query.filter_by(username=username).first()
-    if not user or not check_password_hash(user.password, password):
-        return jsonify({'error': 'Invalid username or password'}), 401
-
-    token = jwt.encode({'user_id': user.id}, app.config['SECRET_KEY'], algorithm='HS256')
-    return jsonify({'token': token})
+    # token = jwt.encode({'user_id': user.id}, app.config['SECRET_KEY'], algorithm='HS256')
+    # return jsonify({'token': token})
 
 @app.route('/api/v1/auth/logout', methods=['POST'])
 def logout():
@@ -127,8 +144,11 @@ def follow_user(user_id):
 
 @app.route('/api/v1/posts', methods=['GET'])
 def get_all_post():
-    posts = Post.query.all()
-    return jsonify([post.to_dict() for post in posts])
+    posts = db.session.execute(db.select(Post)).scalars()
+    if posts.__dict__ == {}:
+        return jsonify({"error":"There are no posts to view"})
+    else:
+        return jsonify(posts=[post.to_dict() for post in posts])
 
 @app.route('/api/v1/posts/<post_id>/like', methods=['POST'])
 def likepost(post_id):
