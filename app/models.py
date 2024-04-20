@@ -28,20 +28,19 @@ class Likes(db.Model):
         self.post_id=post_id
         self.user_id = user_id
 
-# class Follows(db.Model):
 class Follows(db.Model):
      __tablename__ = 'follows'
      id = db.Column(db.Integer, primary_key=True)
      followers_id = db.Column(db.Integer)
      user_id = db.Column(db.Integer)
-     
+
      def __init__(self,post_id,user_id):
         self.posts_id=user_id
         self.user_id = user_id
 
 # class Users(db.Model):
 class UserProfile(db.Model):
-    __tablename__ = 'Users'
+    __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
@@ -50,22 +49,21 @@ class UserProfile(db.Model):
     lastname = db.Column(db.String(80))
     email = db.Column(db.String(128), unique=True)
     location = db.Column(db.String(128))
-    biblography = db.Column(db.String(255))
+    biography = db.Column(db.String(255))
     profile_photo = db.Column(db.String(255))
     joined_on = db.Column(db.DateTime)
  
     def __init__(self, username, password, firstname, lastname, email,location,biography,profile_photo,joined_on):
-        self.username = username
-        self.password = generate_password_hash(password, method='pbkdf2:sha256')
-        self.firstname = first_name
-        self.lastname = last_name
+        self.username=username
+        self.password=generate_password_hash(password, method='pbkdf2:sha256')
+        self.firstname=firstname
+        self.lastname=lastname
         self.email=email
         self.location=location
-        self.biblography=biblography
+        self.biography=biography
         self.profile_photo=profile_photo
-        self.joined_on=joined_on   
+        self.joined_on=joined_on
         
-       
 def is_authenticated(self):
         return True
 
