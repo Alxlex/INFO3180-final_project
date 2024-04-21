@@ -1,33 +1,66 @@
 <template>
+    <button @click="$router.push('/posts/new')" type="button" class="btn btn-primary">New Post</button>
     <div v-if="posts != null">
         <div v-if="posts['error']" class="alert alert-danger" role="alert">
             <li> {{ posts['error'] }} </li>
         </div>
         <div v-else>
-            {{ posts }}
-            <div v-for="post in posts" class="card-columns">
-                <div class="cards">
-                    <img :src="post['profilePhoto']" alt="Poster Profile Photo">
-                    <p class="card-text">{{ post['caption6'] }}</p>
-                    <img :src="post['photo']" alt="Photo used in photo">
-                    <p class="card-text">{{ post['caption'] }}</p>
-                    <p>{{ post['likes'] }}</p>
-                    <p>{{ post['created_on'] }}</p>
+            <div class="cards">
+                <div v-for="post in posts['posts']" class="card-columns">
+                    <div class="card" style="width: 50rem;">
+                        <div class="card-header">
+                            <p>{{ post['username'] }}</p>
+                            <img :src="post['profilePhoto']" alt="Poster Profile Photo">
+                        </div>
+                        <div class="card-body">
+                            <img :src="post['photo']" alt="Photo used in photo">
+                            <p class="card-text">{{ post['caption'] }}</p>
+                        </div>
+                        <div class="card-footer clearfix">
+                            <div @click="toggleLike" class="png-container">
+                                <img src="/src/assets/like.png" alt="Like heart picture" id="like">
+                            </div>
+                            <p class="">{{ post['likes'] }}</p>
+                            <p class="">{{ post['created_on'] }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <button @click="$router.push('/posts/new')" type="button" class="btn btn-primary">New Post</button>
 </template>
 
 <script setup>
     import { ref, onMounted } from "vue";
+
+    var like= ref(null);
 
     onMounted(() => {
         getPosts();
     });
 
     const posts = ref(null);
+
+    function toggleLike(){
+        like = !like
+        if (like == true){
+            document.getElementById("like")
+            .style
+            .filter = "drop-shadow(0px 1000px 0 red)"
+
+            document.getElementById("like")
+            .style
+            .transform = "translateY(-1000px)"
+        }else{
+            document.getElementById("like")
+            .style
+            .filter = null
+
+            document.getElementById("like")
+            .style
+            .transform = null
+        }
+    }
 
     function getPosts(){
         fetch('/api/v1/posts', {
@@ -45,3 +78,9 @@
         });
     }
 </script>
+
+<style>
+    .png-container {
+        overflow: hidden;
+    }
+</style>

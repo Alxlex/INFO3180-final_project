@@ -108,7 +108,6 @@ def logout():
 @app.route('/api/v1/users/<user_id>/posts', methods=['GET', 'POST'])
 def user_posts(user_id):
     form = PostForm()
-    print(form.errors)
     if request.method == 'GET':
         posts = db.session.execute(db.select(Post).filter_by(user_id)).scalars()
         return jsonify({"posts":[post.__dict__ for post in posts]})
@@ -157,12 +156,15 @@ def get_all_post():
     if not posts:
         return jsonify({"error":"There are no posts to view"}), 200
     else:
-        return jsonify({"posts":[{
-        "caption":post.caption, 
-        "photo":post.photo, 
-        "user_id":post.user_id, 
-        "creatd_on":post.created_on} for post in posts]
-        }), 200
+        posts = [{
+            "username":str(db.session.execute(db.select(UserProfile.username).filter_by(id=post.user_id)).scalar()),
+            "profilePhoto":"/api/v1/users/"+str(db.session.execute(db.select(UserProfile.id).filter_by(id=post.user_id)).scalar())+"/"+str(post.id),
+            "caption":post.caption, 
+            "photo":"/api/v1/posts/"+post.photo, 
+            "user_id":post.user_id, 
+            "likes":len(db.session.execute(db.select(Likes.post_id).filter_by(post_id=post.id)).all()),
+            "created_on":post.created_on.strftime("%d %b %Y")} for post in posts]
+        return jsonify({"posts": posts}), 200
 
 @app.route('/api/v1/posts/<post_id>/like', methods=['POST'])
 def likepost(post_id):
@@ -181,9 +183,13 @@ def likepost(post_id):
         db.session.commit()
         return jsonify({'message': 'Post unlike successfully'})
 
-@app.route('/api/v1/posts/<user_id>/<filename>') #MAY BE USED TO FIND PICTURES, CHANGE TO FIT CURRENT CODE
-def get_image(filename):
-    print(filename)
+@app.route('/api/v1/posts/<filename>') #MAY BE USED TO FIND PICTURES, CHANGE TO FIT CURRENT CODE
+def getPostImage(filename):
+    return send_from_directory(os.path.join(os.getcwd(),app.config['UPLOAD_FOLDER']),filename)
+
+@app.route('/api/v1/users/<user_id>/<post_id>') #MAY BE USED TO FIND PICTURES, CHANGE TO FIT CURRENT CODE
+def getProfilePhoto(user_id, post_id):
+    filename = db.session.execute(db.select(UserProfile.profile_photo).filter_by(id=user_id)).scalar()
     return send_from_directory(os.path.join(os.getcwd(),app.config['UPLOAD_FOLDER']),filename)
 
 ###
