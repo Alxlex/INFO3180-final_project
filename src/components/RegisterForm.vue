@@ -8,7 +8,7 @@
         </div>
     </div>
     <h1>Register</h1>
-    <form @submit.prevent="registerUser" method="POST" id="registerForm">
+    <form @submit.prevent="registerUser" method="POST" id="registerForm" enctype="multipart/form-data">
         <div class="form-group mb-3">
             <label for="firstname" class="form-label">First Name</label>
             <input id="firstname" name = "firstname" type="text" class="form-control" placeholder="Please enter your First Name">

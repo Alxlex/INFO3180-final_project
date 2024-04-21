@@ -9,7 +9,7 @@
     </div>
     <h1>New Post</h1>
     <div>
-        <form @prevent.submit="submit" method="POST" id="newPostForm">
+        <form @submit.prevent="submit" method="POST" id="newPostForm" enctype="multipart/form-data">
             <div class="form-group mb-3">
                 <label for="photo" class="form-label">Photo</label>
                 <input type="file" name="photo" class="form-control">
@@ -24,28 +24,46 @@
 </template>
 
 <script setup>
-    import { ref, onMounted } from "vue";
+    import { jwtDecode } from "jwt-decode";
+    import { ref, onMounted } from "vue";    
 
-    let csrf_token = null
+    let csrf_token = ref(null)
+    let user_id;
     const msg = ref(null)
+    const token = localStorage.getItem("token")
 
     onMounted(() =>{
-        // getUserId();
+        getCsrf();
+        getUserId();
+        console.log(user_id);
     });
 
-    // function getUserId(){
-        
-    // }
+    function getCsrf(){
+        fetch('/api/v1/csrf-token')
+        .then((response) => response.json())
+        .then((data) => {
+            console.log(data)
+            csrf_token.value = data.csrf_token;
+        })
+    }
+
+    function getUserId(){
+        user_id = jwtDecode(token).user_id;
+    }
 
     function submit(){
         let newPostForm = document.getElementById('newPostForm');
         let form_data = new FormData(newPostForm);
+        form_data.append("user_id", user_id)
 
-        fetch('/api/v1/users//posts', {
+        console.log(form_data)
+
+        fetch(`/api/v1/users/${user_id}/posts`, {
             method: 'POST',
             body: form_data,
             headers: {
-                'X-CSRFToken': csrf_token.value
+                'X-CSRFToken': csrf_token.value,
+                'Authorization': `Bearer ${token}`
             }
         })
         .then(function (response) {

@@ -23,7 +23,7 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[InputRequired()])
 
 class PostForm(FlaskForm):
-    caption=photo =StringField('caption', validators=[InputRequired()])
+    caption = StringField('caption', validators=[InputRequired()])
     photo = FileField('Photo', validators=[
     FileRequired(),
     FileAllowed(['jpg', 'png'], 'Images only!')])

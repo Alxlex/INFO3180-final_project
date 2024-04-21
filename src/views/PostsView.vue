@@ -4,10 +4,11 @@
             <li> {{ posts['error'] }} </li>
         </div>
         <div v-else>
+            {{ posts }}
             <div v-for="post in posts" class="card-columns">
                 <div class="cards">
                     <img :src="post['profilePhoto']" alt="Poster Profile Photo">
-                    <p class="card-text">{{ post['poster'] }}</p>
+                    <p class="card-text">{{ post['caption6'] }}</p>
                     <img :src="post['photo']" alt="Photo used in photo">
                     <p class="card-text">{{ post['caption'] }}</p>
                     <p>{{ post['likes'] }}</p>
