@@ -103,29 +103,36 @@ def login():
 
 @app.route('/api/v1/auth/logout', methods=['POST'])
 def logout():
-    return jsonify({'message': 'Logged out successfully'})
+    return jsonify({'message':'Logged out successfully'})
 
-@app.route('/api/v1/users/<int:user_id>/posts', methods=['POST'])
-def create_post(user_id):
+@app.route('/api/v1/users/<user_id>/posts', methods=['GET', 'POST'])
+def user_posts(user_id):
     form = PostForm()
-    if form.validate_on_submit() and request.method == "POST":
-
+    print(form.errors)
+    if request.method == 'GET':
+        posts = db.session.execute(db.select(Post).filter_by(user_id)).scalars()
+        return jsonify({"posts":[post.__dict__ for post in posts]})
+    elif form.validate_on_submit():
         caption = form.caption.data
         photo = form.photo.data
-    
-    post = Post(caption=caption, 
-                photo=photo, 
-                user_id=user_id, 
-                created_on=datetime.datetime.now())
-    db.session.add(post)
-    db.session.commit()
+        filename = secure_filename(photo.filename)
 
-    return jsonify({'message': 'Post created successfully'}), 201
+        photo.save(
+            os.path.join(
+            app.config["UPLOAD_FOLDER"],
+            filename)
+        )
 
-@app.route('/api/v1/users/<int:user_id>/posts', methods=['POST'])
-def get_user_post(user_id):
-    post = Post.query.filter_by(user_id=user_id).all()
-    return jsonify([post.to_dic() for post in posts])
+        post = Post(caption=caption, 
+                    photo=filename, 
+                    user_id=user_id, 
+                    created_on=datetime.datetime.now())
+        db.session.add(post)
+        db.session.commit()
+
+        return jsonify({'message': 'Post created successfully'}), 201
+    else:
+        return jsonify({"errors": form_errors(form)}), 400
 
 @app.route('/api/users/<user_id>/follow', methods=['POST'])
 def follow_user(user_id):
@@ -147,10 +154,15 @@ def follow_user(user_id):
 @app.route('/api/v1/posts', methods=['GET'])
 def get_all_post():
     posts = db.session.execute(db.select(Post)).scalars()
-    if posts.__dict__ == {}:
-        return jsonify({"error":"There are no posts to view"})
+    if not posts:
+        return jsonify({"error":"There are no posts to view"}), 200
     else:
-        return jsonify(posts=[post.to_dict() for post in posts])
+        return jsonify({"posts":[{
+        "caption":post.caption, 
+        "photo":post.photo, 
+        "user_id":post.user_id, 
+        "creatd_on":post.created_on} for post in posts]
+        }), 200
 
 @app.route('/api/v1/posts/<post_id>/like', methods=['POST'])
 def likepost(post_id):
@@ -169,10 +181,10 @@ def likepost(post_id):
         db.session.commit()
         return jsonify({'message': 'Post unlike successfully'})
 
-# @app.route('/api/v1/posters/<filename>') #MAY BE USED TO FIND PICTURES, CHANGE TO FIT CURRENT CODE
-# def get_image(filename):
-#     print(filename)
-#     return send_from_directory(os.path.join(os.getcwd(),app.config['UPLOAD_FOLDER']),filename)
+@app.route('/api/v1/posts/<user_id>/<filename>') #MAY BE USED TO FIND PICTURES, CHANGE TO FIT CURRENT CODE
+def get_image(filename):
+    print(filename)
+    return send_from_directory(os.path.join(os.getcwd(),app.config['UPLOAD_FOLDER']),filename)
 
 ###
 # The functions below should be applicable to all Flask apps.
