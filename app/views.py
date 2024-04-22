@@ -162,6 +162,7 @@ def get_all_post():
             "caption":post.caption, 
             "photo":"/api/v1/posts/"+post.photo, 
             "user_id":post.user_id, 
+            "post_id":post.id,
             "likes":len(db.session.execute(db.select(Likes.post_id).filter_by(post_id=post.id)).all()),
             "created_on":post.created_on.strftime("%d %b %Y")} for post in posts]
         return jsonify({"posts": posts}), 200
