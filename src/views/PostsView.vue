@@ -17,7 +17,7 @@
                             <p class="card-text">{{ post['caption'] }}</p>
                         </div>
                         <div class="card-footer clearfix">
-                            <div @click="toggleLike" class="png-container">
+                            <div @click="toggleLike(post['id'])" class="png-container">
                                 <img src="/src/assets/like.png" alt="Like heart picture" id="like">
                             </div>
                             <p class="">{{ post['likes'] }}</p>
@@ -33,7 +33,7 @@
 <script setup>
     import { ref, onMounted } from "vue";
 
-    var like= ref(null);
+    var likes = ref(null);
 
     onMounted(() => {
         getPosts();
@@ -41,8 +41,9 @@
 
     const posts = ref(null);
 
-    function toggleLike(){
+    function toggleLike(like){
         like = !like
+        console.log(like)
         if (like == true){
             document.getElementById("like")
             .style
@@ -71,6 +72,7 @@
         })
         .then(function (data) {
             console.log(data)
+            // likes = Array(data["posts"].length).fill([, false])
             posts.value = data;
         })
         .then(function (error) {
