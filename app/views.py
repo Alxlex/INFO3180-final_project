@@ -182,22 +182,30 @@ def get_all_post(): #TODO: Not completed
         for post in posts: print(post)
         return jsonify({"posts": posts}), 200
 
-@app.route('/api/v1/posts/<post_id>/like', methods=['POST'])
+@app.route('/api/v1/posts/<post_id>/like')
 def likepost(post_id): #TODO: Not yet used
-    form = PostForm()
-    if form.validate_on_submit() and request.method == "POST":
-        user_id = form.user_id.data
-    
-    like = Like.query.filter_by(post_id=post_id, user_id=user_id).first()
+    print(post_id)
+    token = request.headers['authorization'].split()[1]
+    token = jwt.decode(token, app.config['SECRET_KEY'], 'HS256')
+    like = db.session.execute(db.select(Likes).filter_by(post_id=post_id, user_id=token['user_id'])).scalar()
+
     if not like:
-        like = Like(post_id=post_id, user_id=user_id)
+        like = Likes(post_id=post_id, user_id=token['user_id'])
         db.session.add(like)
         db.session.commit()
-        return jsonify({'message': 'Post liked successfully'})
+        likes = len(db.session.execute(db.select(Likes).filter_by(post_id=post_id)).all())
+        return jsonify({
+            'message': 'Post liked successfully',
+            'likes':likes,
+            'liked':True})
     else:
         db.session.delete(like)
         db.session.commit()
-        return jsonify({'message': 'Post unlike successfully'})
+        likes = len(db.session.execute(db.select(Likes).filter_by(post_id=post_id)).all())
+        return jsonify({
+            'message': 'Post unlike successfully',
+            'likes':likes,
+            'liked':False})
 
 @app.route('/api/v1/users/<user_id>/follow')
 def follow_user(user_id): #TODO: not started yet
@@ -213,7 +221,7 @@ def follow_user(user_id): #TODO: not started yet
         return jsonify({
             'message': 'User followed successfully',
             'followers': followers,
-            'followed':True})
+            'followed':True}), 201
     else:
         db.session.delete(follow)
         db.session.commit()
@@ -221,7 +229,7 @@ def follow_user(user_id): #TODO: not started yet
         return jsonify({
             'message': 'User unfollowed successfully',
             'followers': followers,
-            'followed':False})
+            'followed':False}), 201
 
 @app.route('/api/v1/posts/<filename>') #MAY BE USED TO FIND PICTURES, CHANGE TO FIT CURRENT CODE
 def getPostImage(filename): #TODO: Used in posts, needed for userview

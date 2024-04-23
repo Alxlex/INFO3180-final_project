@@ -1,5 +1,8 @@
 <template>
     <button @click="$router.push('/posts/new')" type="button" class="btn btn-primary">New Post</button>
+    <h1 v-if="msg != null" class="alert alert-success" role="alert">
+        {{ msg }}
+    </h1>
     <div v-if="posts != null">
         <div v-if="posts['error']" class="alert alert-danger" role="alert">
             <li> {{ posts['error'] }} </li>
@@ -19,9 +22,14 @@
                             <p class="card-text">{{ post['caption'] }}</p>
                         </div>
                         <div class="card-footer clearfix">
-                            <div @click="toggleLike(post['id'])" class="png-container" ref="hearts">
+                            {{ likes[post['id']-1] }}
+                            <div v-if="likes[post['id']-1][0]" @click="toggleLike(post['id'])" class="png-container">
+                                <img src="/src/assets/like.png" alt="Like heart picture" class="red">
+                            </div>
+                            <div v-else @click="toggleLike(post['id'])" class="png-container">
                                 <img src="/src/assets/like.png" alt="Like heart picture">
                             </div>
+                            {{ post['likes'] }}
                             <p class="">{{ post['likes'] }}</p>
                             <p class="">{{ post['created_on'] }}</p>
                         </div>
@@ -37,36 +45,37 @@
     import { ref, onMounted, isProxy, toRaw } from "vue";
 
     const likes = ref([]);
-    const hearts = ref([]);
     const user_id = ref(null)
     const token = localStorage.getItem("token")
     const posts = ref(null);
+    const msg = ref(null)
 
     onMounted(() => {
         getPosts();
         getUserId();
     });
 
-    function toggleLike(like){
-        // like = !like
-        // console.log(like)
-        // if (like){
-        //     document.getElementById("like")
-        //     .style
-        //     .filter = "drop-shadow(0px 1000px 0 red)"
-
-        //     document.getElementById("like")
-        //     .style
-        //     .transform = "translateY(-1000px)"
-        // }else{
-        //     document.getElementById("like")
-        //     .style
-        //     .filter = null
-
-        //     document.getElementById("like")
-        //     .style
-        //     .transform = null
-        // }
+    function toggleLike(id){
+        console.log(likes.value[id-1][0])
+        fetch(`/api/v1/posts/${id}/like`, {
+            // method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(function (response) {
+            return response.json()
+        })
+        .then(function (data) {
+            console.log(data)
+            msg.value = data.message
+            likes.value[id-1][0] = data.liked
+            posts.value['posts'][id-1]['likes'] = data.likes
+            console.log(posts.value['posts'][id-1])
+        })
+        .then(function (error) {
+            console.log(error)
+        });
     }
 
     function getUserId(){
@@ -91,24 +100,7 @@
                     data['posts'][arr]['id']])
             }
             posts.value = data;
-            // console.log(hearts.value)
-            // const img = hearts.value
-            // console.log(img)
-
-            // for(let val of ){
-            //     console.log(val)
-            // }
-            // for(let i = 0; i < likes.value.length; i++){
-                
-            //     console.log(document.getElementById('post'+i))
-                
-            //     if(likes.value[i] == false){
-
-            //         heart.style.filter = "drop-shadow(0px 1000px 0 red)"
-
-            //         heart.style.transform = "translateY(-1000px)"
-            //     }
-            // }
+            console.log()
         })
         .then(function (error) {
             console.log(error)
