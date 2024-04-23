@@ -21,6 +21,27 @@
     </form>
 </template>
 
+<style>
+    body{
+        display:flex;
+        justify-content: center;
+    }
+
+    h1{
+        align-content: left;
+    }
+
+    #loginForm{
+        border: 1.5px solid black;
+        border-bottom:none;
+        /*box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);*/
+        padding: 5px;
+        padding-bottom: 0;
+    }
+
+
+</style>
+
 <script setup>
     import { ref, onMounted } from "vue";
     import { useRouter } from "vue-router";
@@ -70,3 +91,4 @@
         });
     }
 </script>
+
