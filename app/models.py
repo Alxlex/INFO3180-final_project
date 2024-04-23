@@ -34,8 +34,8 @@ class Follows(db.Model):
      followers_id = db.Column(db.Integer)
      user_id = db.Column(db.Integer)
 
-     def __init__(self,post_id,user_id):
-        self.posts_id=user_id
+     def __init__(self,followers_id,user_id):
+        self.followers_id=followers_id
         self.user_id = user_id
 
 # class Users(db.Model):

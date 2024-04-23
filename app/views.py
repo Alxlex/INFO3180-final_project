@@ -109,8 +109,34 @@ def logout():
 def user_posts(user_id):
     form = PostForm()
     if request.method == 'GET':
-        posts = db.session.execute(db.select(Post).filter_by(user_id)).scalars()
-        return jsonify({"posts":[post.__dict__ for post in posts]})
+        token = request.headers['authorization'].split()[1]
+        token = jwt.decode(token, app.config['SECRET_KEY'], 'HS256')
+        posts = db.session.execute(db.select(Post)).scalars()
+        if not posts:
+            posts = {"error":"There are no posts to view"}        
+            posts_count = "0"
+        else:
+            posts = [{'photo':"/api/v1/posts/"+post.photo} for post in posts]
+            print(posts)
+            posts_count = str(len(posts))
+
+        user = db.session.execute(db.select(UserProfile).filter_by(id=user_id)).scalar()
+
+        followers = len(db.session.execute(db.select(Follows).filter_by(user_id=user_id)).all())
+
+        return jsonify({
+            "posts":posts,
+            "user":{
+                "firstname":user.firstname,
+                "lastname":user.lastname,
+                "location":user.location,
+                "joined_on":user.joined_on,
+                "biography":user.biography,
+                "profile_photo":"/api/v1/users/"+user.profile_photo,
+                "postcount":posts_count},
+            "followers":followers,
+            "followed":True if db.session.execute(db.select(Follows).filter_by(user_id=user_id,followers_id=token['user_id'])).scalar() else False
+        })
     elif form.validate_on_submit():
         caption = form.caption.data
         photo = form.photo.data
@@ -133,42 +159,31 @@ def user_posts(user_id):
     else:
         return jsonify({"errors": form_errors(form)}), 400
 
-@app.route('/api/users/<user_id>/follow', methods=['POST'])
-def follow_user(user_id):
-    form = PostForm()
-    if form.validate_on_submit() and request.method == "POST":
-        follower_id = form.user_id.data
-    
-    follow = Follow.query.filter_by(follower_id=follower_id, user_id=user_id).first()
-    if not follow:
-        follow = Follow(follower_id=follower_id, user_id=user_id)
-        db.session.add(follow)
-        db.session.commit()
-        return jsonify({'message': 'User followed successfully'})
-    else:
-        db.session.delete(follow)
-        db.session.commit()
-        return jsonify({'message': 'User unfollowed successfully'})
-
 @app.route('/api/v1/posts', methods=['GET'])
-def get_all_post():
+def get_all_post(): #TODO: Not completed
     posts = db.session.execute(db.select(Post)).scalars()
+    token = request.headers['authorization'].split()[1]
+    token = jwt.decode(token, app.config['SECRET_KEY'], 'HS256')
+
     if not posts:
         return jsonify({"error":"There are no posts to view"}), 200
     else:
         posts = [{
             "username":str(db.session.execute(db.select(UserProfile.username).filter_by(id=post.user_id)).scalar()),
-            "profilePhoto":"/api/v1/users/"+str(db.session.execute(db.select(UserProfile.id).filter_by(id=post.user_id)).scalar())+"/"+str(post.id),
+            "profilePhoto":"/api/v1/users/"+db.session.execute(db.select(UserProfile.profile_photo).filter_by(id=post.user_id)).scalar(),
             "caption":post.caption, 
             "photo":"/api/v1/posts/"+post.photo, 
             "user_id":post.user_id, 
-            "post_id":post.id,
+            "id":post.id,
+            "liked":
+            True if db.session.execute(db.select(Likes).filter_by(user_id=token['user_id'])).scalar() else False,
             "likes":len(db.session.execute(db.select(Likes.post_id).filter_by(post_id=post.id)).all()),
             "created_on":post.created_on.strftime("%d %b %Y")} for post in posts]
+        for post in posts: print(post)
         return jsonify({"posts": posts}), 200
 
 @app.route('/api/v1/posts/<post_id>/like', methods=['POST'])
-def likepost(post_id):
+def likepost(post_id): #TODO: Not yet used
     form = PostForm()
     if form.validate_on_submit() and request.method == "POST":
         user_id = form.user_id.data
@@ -184,14 +199,41 @@ def likepost(post_id):
         db.session.commit()
         return jsonify({'message': 'Post unlike successfully'})
 
+@app.route('/api/v1/users/<user_id>/follow')
+def follow_user(user_id): #TODO: not started yet
+    token = request.headers['authorization'].split()[1]
+    token = jwt.decode(token, app.config['SECRET_KEY'], 'HS256')
+
+    follow = db.session.execute(db.select(Follows).filter_by(followers_id=token['user_id'], user_id=user_id)).scalar()
+    if not follow:
+        follow = Follows(followers_id=token['user_id'], user_id=user_id)
+        db.session.add(follow)
+        db.session.commit()
+        followers = len(db.session.execute(db.select(Follows).filter_by(user_id=user_id)).all())
+        return jsonify({
+            'message': 'User followed successfully',
+            'followers': followers,
+            'followed':True})
+    else:
+        db.session.delete(follow)
+        db.session.commit()
+        followers = len(db.session.execute(db.select(Follows).filter_by(user_id=user_id)).all())
+        return jsonify({
+            'message': 'User unfollowed successfully',
+            'followers': followers,
+            'followed':False})
+
 @app.route('/api/v1/posts/<filename>') #MAY BE USED TO FIND PICTURES, CHANGE TO FIT CURRENT CODE
-def getPostImage(filename):
+def getPostImage(filename): #TODO: Used in posts, needed for userview
     return send_from_directory(os.path.join(os.getcwd(),app.config['UPLOAD_FOLDER']),filename)
 
-@app.route('/api/v1/users/<user_id>/<post_id>') #MAY BE USED TO FIND PICTURES, CHANGE TO FIT CURRENT CODE
-def getProfilePhoto(user_id, post_id):
-    filename = db.session.execute(db.select(UserProfile.profile_photo).filter_by(id=user_id)).scalar()
+@app.route('/api/v1/users/<filename>') #MAY BE USED TO FIND PICTURES, CHANGE TO FIT CURRENT CODE
+def getProfilePhoto(filename):
     return send_from_directory(os.path.join(os.getcwd(),app.config['UPLOAD_FOLDER']),filename)
+
+# @app.route('/api/v1/posts/')
+# def getLikes():
+    # return render_template('expression')
 
 ###
 # The functions below should be applicable to all Flask apps.
