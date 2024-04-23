@@ -4,7 +4,7 @@
             <p> {{ msg['errors'] }} </p>
         </div>
         <div v-else class="alert alert-success" role="alert">
-            <p>{{ msg['token'] }}</p>
+            <p>{{ msg['message'] }}</p>
         </div>
     </div>
     <h1>Login</h1>

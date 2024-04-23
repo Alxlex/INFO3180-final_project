@@ -22,9 +22,11 @@
             <li class="nav-item">
               <RouterLink class="nav-link" to="/explore">Explore</RouterLink>
             </li>
-            {{ token }}
             <li v-if="token == null" class="nav-item">
               <RouterLink class="nav-link" to="/login">Login</RouterLink>
+            </li>
+            <li v-else class="nav-item">
+              <RouterLink class="nav-link" to="/logout">Logout</RouterLink>
             </li>
             <li class="nav-item">
               <RouterLink class="nav-link" to="/register">Register</RouterLink>
@@ -37,14 +39,10 @@
 </template>
 
 <script setup>
-  import { onMounted, ref } from "vue";
+  import { onMounted, ref} from "vue";
   import { RouterLink } from "vue-router";
 
-  const token = ref(null);
-//DYnAMIC LOGOUT/LOGIN NEEDED
-  // onMounted(() => {
-  //   token = localStorage.getItem("token");
-  // })
+  const token = ref(null)
 </script>
 
 <style>
