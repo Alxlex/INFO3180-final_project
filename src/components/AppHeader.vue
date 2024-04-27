@@ -26,7 +26,7 @@
               <RouterLink class="nav-link" to="/login">Login</RouterLink>
             </li>
             <li v-else class="nav-item">
-              <RouterLink class="nav-link" to="/logout">Logout</RouterLink>
+              <RouterLink class="nav-link" to="/logout" @click="logout">Logout</RouterLink>
             </li>
             <li class="nav-item">
               <RouterLink class="nav-link" to="/register">Register</RouterLink>
@@ -39,10 +39,19 @@
 </template>
 
 <script setup>
-  import { onMounted, ref} from "vue";
+  import { ref} from "vue";
   import { RouterLink } from "vue-router";
 
-  const token = ref(null)
+  const token = localStorage.getItem('token')
+  console.log(token)
+
+  function logout(){
+    localStorage.removeItem('token')
+  }
+
+  // watch(token, (newValue) =>{
+  //   localStorage.setItem('token', newValue)
+  // })
 </script>
 
 <style>
