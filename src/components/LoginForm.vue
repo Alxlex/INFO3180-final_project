@@ -33,13 +33,12 @@
 
     #loginForm{
         border: 1.5px solid black;
-        border-bottom:none;
+        /* border-bottom:none; */
         /*box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);*/
         padding: 5px;
-        padding-bottom: 0;
+        /* padding-bottom: 0; */
+        border-radius: 5px;
     }
-
-
 </style>
 
 <script setup>
