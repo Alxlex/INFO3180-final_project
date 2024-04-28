@@ -52,6 +52,8 @@
     token.value = localStorage.getItem('token')
     if(!token.value){
       localStorage.setItem("reloaded", "false")
+    }else{
+      localStorage.setItem("reloaded", "true")
     }
   })
 
