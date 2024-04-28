@@ -31,7 +31,7 @@
 
     const msg = ref(null)
     const router = useRouter();
-    let csrf_token = ref("")
+    const csrf_token = ref("")
 
     function getCsrf(){
         fetch('/api/v1/csrf-token')

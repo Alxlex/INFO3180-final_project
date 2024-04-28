@@ -27,7 +27,7 @@
     import { jwtDecode } from "jwt-decode";
     import { ref, onMounted } from "vue";    
 
-    let csrf_token = ref(null)
+    const csrf_token = ref(null)
     let user_id;
     const msg = ref(null)
     const token = localStorage.getItem("token")

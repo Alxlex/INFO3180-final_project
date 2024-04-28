@@ -1,38 +1,33 @@
 <template>
-    <button @click="$router.push('/posts/new')" type="button" class="btn btn-primary">New Post</button>
-    <h1 v-if="msg != null" class="alert alert-success" role="alert">
-        {{ msg }}
+    <h1 v-if="error != null" class="alert alert-danger" role="alert">
+        {{ error }}
     </h1>
+    <button @click="$router.push('/posts/new')" type="button" class="btn btn-primary">New Post</button>
     <div v-if="posts != null">
-        <div v-if="posts['error']" class="alert alert-danger" role="alert">
-            <li> {{ posts['error'] }} </li>
-        </div>
-        <div v-else>
-            <div class="cards">
-                <div v-for="post in posts['posts']" class="card-columns">
-                    <div class="card" style="width: 50rem;">
-                        <a :href="/users/ + post['user_id'] ">
-                            <div class="card-header">
-                                <p>{{ post['username'] }}</p>
-                                <img :src="post['profilePhoto']" alt="Poster Profile Photo">
-                            </div>
-                        </a>
-                        <div class="card-body">
-                            <img :src="post['photo']" alt="Photo used in photo">
-                            <p class="card-text">{{ post['caption'] }}</p>
+        <div class="cards">
+            <div v-for="post in posts['posts']" class="card-columns">
+                <div class="card" style="width: 50rem;">
+                    <a :href="/users/ + post['user_id'] ">
+                        <div class="card-header">
+                            <p>{{ post['username'] }}</p>
+                            <img :src="post['profilePhoto']" alt="Poster Profile Photo">
                         </div>
-                        <div class="card-footer clearfix">
-                            {{ likes[post['id']-1] }}
-                            <div v-if="likes[post['id']-1][0]" @click="toggleLike(post['id'])" class="png-container">
-                                <img src="/src/assets/like.png" alt="Like heart picture" class="red">
-                            </div>
-                            <div v-else @click="toggleLike(post['id'])" class="png-container">
-                                <img src="/src/assets/like.png" alt="Like heart picture">
-                            </div>
-                            {{ post['likes'] }}
-                            <p class="">{{ post['likes'] }}</p>
-                            <p class="">{{ post['created_on'] }}</p>
+                    </a>
+                    <div class="card-body">
+                        <img :src="post['photo']" alt="Photo used in photo">
+                        <p class="card-text">{{ post['caption'] }}</p>
+                    </div>
+                    <div class="card-footer clearfix">
+                        {{ likes[post['id']-1] }}
+                        <div v-if="likes[post['id']-1][0]" @click="toggleLike(post['id'])" class="png-container">
+                            <img src="/src/assets/like.png" alt="Like heart picture" class="red">
                         </div>
+                        <div v-else @click="toggleLike(post['id'])" class="png-container">
+                            <img src="/src/assets/like.png" alt="Like heart picture">
+                        </div>
+                        {{ post['likes'] }}
+                        <p class="">{{ post['likes'] }}</p>
+                        <p class="">{{ post['created_on'] }}</p>
                     </div>
                 </div>
             </div>
@@ -42,15 +37,16 @@
 
 <script setup>
     import { jwtDecode } from "jwt-decode";
-    import { ref, onMounted, isProxy, toRaw } from "vue";
+    import { ref, onMounted } from "vue";
 
     const likes = ref([]);
     const user_id = ref(null)
-    const token = localStorage.getItem("token")
+    const token = ref(null)
     const posts = ref(null);
-    const msg = ref(null)
+    const error = ref(null)
 
     onMounted(() => {
+        token.value = localStorage.getItem("token")
         getPosts();
         getUserId();
     });
@@ -60,7 +56,7 @@
         fetch(`/api/v1/posts/${id}/like`, {
             // method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token.value}`
             }
         })
         .then(function (response) {
@@ -68,7 +64,7 @@
         })
         .then(function (data) {
             console.log(data)
-            msg.value = data.message
+            error.value = data.error
             likes.value[id-1][0] = data.liked
             posts.value['posts'][id-1]['likes'] = data.likes
             console.log(posts.value['posts'][id-1])
@@ -79,14 +75,16 @@
     }
 
     function getUserId(){
-        user_id.value = jwtDecode(token).user_id;
+        if (token.value){
+            user_id.value = (jwtDecode(token.value).user_id || "null");
+        }
     }
 
     function getPosts(){
         fetch('/api/v1/posts', {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token.value}`
             }
         })
         .then(function (response) {
@@ -99,8 +97,9 @@
                     data['posts'][arr]['liked'],
                     data['posts'][arr]['id']])
             }
+            error.value = data.error
+            console.log(error.value)
             posts.value = data;
-            console.log()
         })
         .then(function (error) {
             console.log(error)

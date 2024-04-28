@@ -8,6 +8,7 @@ This file creates your application.
 from app import app, db
 from flask import render_template, request, jsonify, send_file, session, send_from_directory
 import os
+from functools import wraps
 from werkzeug.security import check_password_hash
 from app.models import Post, Likes, Follows, UserProfile
 from app.forms import RegisterForm, LoginForm, PostForm
@@ -19,6 +20,24 @@ import jwt
 ###
 # Routing for your application.
 ###
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not 'Authorization' in request.headers:
+            return jsonify({"error": "Incorrent token!"}), 400
+        token = request.headers['Authorization'].split()[1]
+        print(token)
+        try:
+            token = jwt.decode(
+                token,
+                app.config['SECRET_KEY'],
+                'HS256'
+            )
+        except Exception as e:
+            return jsonify({"error": str(e)+"Please Login before proceeding"}), 400
+        return f(*args, **kwargs)
+    return decorated
 
 @app.route('/')
 def index():
@@ -160,6 +179,7 @@ def user_posts(user_id):
         return jsonify({"errors": form_errors(form)}), 400
 
 @app.route('/api/v1/posts', methods=['GET'])
+@token_required
 def get_all_post(): #TODO: Not completed
     posts = db.session.execute(db.select(Post)).scalars()
     token = request.headers['authorization'].split()[1]

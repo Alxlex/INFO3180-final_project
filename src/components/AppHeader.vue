@@ -39,19 +39,47 @@
 </template>
 
 <script setup>
-  import { ref} from "vue";
+  import { onMounted, ref } from "vue";
   import { RouterLink } from "vue-router";
 
-  const token = localStorage.getItem('token')
-  console.log(token)
+  const token = ref(null)
+  const csrf_token = ref(null)
+
+  onMounted(() =>{
+    getCsrf()
+    token.value = localStorage.getItem('token')
+  })
 
   function logout(){
-    localStorage.removeItem('token')
+    fetch('/api/v1/auth/logout', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrf_token.value
+        }
+        })
+        .then(function (response) {
+            return response.json()
+        })
+        .then(function (data) {
+            console.log(data)
+            if(data != null){
+              localStorage.removeItem('token')
+              token.value = localStorage.getItem('token')
+            }
+        })
+        .then(function (error) {
+            console.log(error)
+    });
   }
 
-  // watch(token, (newValue) =>{
-  //   localStorage.setItem('token', newValue)
-  // })
+  function getCsrf(){
+        fetch('/api/v1/csrf-token')
+        .then((response) => response.json())
+        .then((data) => {
+            console.log(data)
+            csrf_token.value = data.csrf_token;
+        })
+    }
 </script>
 
 <style>
