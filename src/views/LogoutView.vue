@@ -31,7 +31,7 @@
             .then(function (data) {
                 console.log(data)
                 localStorage.removeItem('token')
-                localStorage.setItem('reloaded', 'false')
+                localStorage.removeItem('reloaded', 'false')
                 window.location.reload()
             })
             .then(function (error) {
