@@ -1,11 +1,14 @@
 <template>
-    <div v-if="msg != null">
-        <div v-if="msg['errors']" class="alert alert-danger" role="alert">
-            <li v-for="err in msg['errors']"> {{ err }} </li>
+    <div v-if="message != null">
+        <div v-if="message['errors']" class="alert alert-danger" role="alert">
+            <li v-for="error in message['errors']"> {{ error }}words </li>
         </div>
-        <div v-else class="alert alert-success" role="alert">
-            <p>{{ msg['message'] }}</p>
+        <div v-else-if="message['message']" class="alert alert-success" role="alert">
+            <p>{{ message['message']}} </p>
         </div>
+        <h1 v-else class="alert alert-danger" role="alert">
+            {{ message['error'] }}
+        </h1>
     </div>
     <h1>New Post</h1>
     <div>
@@ -28,11 +31,12 @@
     import { ref, onMounted } from "vue";    
 
     const csrf_token = ref(null)
-    let user_id;
-    const msg = ref(null)
-    const token = localStorage.getItem("token")
+    let user_id
+    const message = ref(null)
+    const token = ref(null)
 
     onMounted(() =>{
+        token.value = localStorage.getItem("token")
         getCsrf();
         getUserId();
         console.log(user_id);
@@ -48,7 +52,9 @@
     }
 
     function getUserId(){
-        user_id = jwtDecode(token).user_id;
+        if(token.value){
+            user_id = jwtDecode(token.value).user_id;
+        }
     }
 
     function submit(){
@@ -56,14 +62,12 @@
         let form_data = new FormData(newPostForm);
         form_data.append("user_id", user_id)
 
-        console.log(form_data)
-
         fetch(`/api/v1/users/${user_id}/posts`, {
             method: 'POST',
             body: form_data,
             headers: {
                 'X-CSRFToken': csrf_token.value,
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token.value}`
             }
         })
         .then(function (response) {
@@ -71,10 +75,11 @@
         })
         .then(function (data){
             console.log(data)
-            msg.value = data;
+            message.value = data
+            console.log(message.value)
         })
-        .catch(function (error) {
-            console.log(error)
+        .catch(function (errors) {
+            console.log(errors)
         });
     }
 </script>

@@ -35,7 +35,7 @@ def token_required(f):
                 'HS256'
             )
         except Exception as e:
-            return jsonify({"error": str(e)+"Please Login before proceeding"}), 400
+            return jsonify({"error": "Please Login before proceeding"}), 400
         return f(*args, **kwargs)
     return decorated
 
@@ -125,6 +125,7 @@ def logout():
     return jsonify({'message':'Logged out successfully'})
 
 @app.route('/api/v1/users/<user_id>/posts', methods=['GET', 'POST'])
+@token_required
 def user_posts(user_id):
     form = PostForm()
     if request.method == 'GET':
