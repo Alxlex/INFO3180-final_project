@@ -2,7 +2,7 @@
     <h1 v-if="error != null" class="alert alert-danger" role="alert">
         {{ error }}
     </h1>
-    <button @click="$router.push('/posts/new')" type="button" class="btn btn-primary">New Post</button>
+    <button v-else @click="$router.push('/posts/new')" type="button" class="btn btn-primary">New Post</button>
     <div v-if="posts != null">
         <div class="cards">
             <div v-for="post in posts['posts']" class="card-columns">
@@ -46,11 +46,13 @@
     const error = ref(null)
 
     onMounted(() => {
-        if(localStorage.getItem('reloaded') == 'false'){
-            localStorage.setItem('reloaded', 'true')
-            window.location.reload()
-        }
         token.value = localStorage.getItem("token")
+        if(token.value){
+            if(localStorage.getItem('reloaded') == 'false'){
+                localStorage.setItem('reloaded', 'true')
+                window.location.reload()
+            }
+        }
         getPosts();
         getUserId();
     });
@@ -103,6 +105,7 @@
             }
             error.value = data.error
             posts.value = data;
+            console.log(data)
         })
         .then(function (error) {
             console.log(error)

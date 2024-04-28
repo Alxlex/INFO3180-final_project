@@ -23,7 +23,7 @@
               <RouterLink class="nav-link" to="/explore">Explore</RouterLink>
             </li>
             <li class="nav-item">
-              <RouterLink class="nav-link" :to="/users/+myProfile()" >My Profile</RouterLink>
+              <RouterLink class="nav-link" :to="/users/+myProfile()">My Profile</RouterLink>
             </li>
             <li v-if="token == null" class="nav-item">
               <RouterLink class="nav-link" to="/login">Login</RouterLink>
