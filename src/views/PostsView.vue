@@ -98,7 +98,6 @@
                     data['posts'][arr]['id']])
             }
             error.value = data.error
-            console.log(error.value)
             posts.value = data;
         })
         .then(function (error) {

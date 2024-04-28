@@ -197,7 +197,7 @@ def get_all_post(): #TODO: Not completed
             "user_id":post.user_id, 
             "id":post.id,
             "liked":
-            True if db.session.execute(db.select(Likes).filter_by(user_id=token['user_id'])).scalar() else False,
+            True if db.session.execute(db.select(Likes).filter_by(user_id=token['user_id'], post_id=post.id)).scalar() else False,
             "likes":len(db.session.execute(db.select(Likes.post_id).filter_by(post_id=post.id)).all()),
             "created_on":post.created_on.strftime("%d %b %Y")} for post in posts]
         for post in posts: print(post)
