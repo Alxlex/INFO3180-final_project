@@ -22,14 +22,14 @@
             <li class="nav-item">
               <RouterLink class="nav-link" to="/explore">Explore</RouterLink>
             </li>
+            <li class="nav-item">
+              <RouterLink class="nav-link" :to="/users/+myProfile()" >My Profile</RouterLink>
+            </li>
             <li v-if="token == null" class="nav-item">
               <RouterLink class="nav-link" to="/login">Login</RouterLink>
             </li>
             <li v-else class="nav-item">
-              <RouterLink class="nav-link" to="/logout" @click="logout">Logout</RouterLink>
-            </li>
-            <li class="nav-item">
-              <RouterLink class="nav-link" to="/register">Register</RouterLink>
+              <RouterLink class="nav-link" to="/logout">Logout</RouterLink>
             </li>
           </ul>
         </div>
@@ -40,46 +40,44 @@
 
 <script setup>
   import { onMounted, ref } from "vue";
-  import { RouterLink } from "vue-router";
+  import { jwtDecode } from "jwt-decode";
+  import { RouterLink, useRouter } from "vue-router";
 
+  // const router = useRouter()
   const token = ref(null)
-  const csrf_token = ref(null)
+  const user_id = ref(null)
+  // const csrf_token = ref(null)
 
   onMounted(() =>{
-    getCsrf()
     token.value = localStorage.getItem('token')
+    if(!token.value){
+      localStorage.setItem("reloaded", "false")
+    }
   })
 
-  function logout(){
-    fetch('/api/v1/auth/logout', {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': csrf_token.value
-        }
-        })
-        .then(function (response) {
-            return response.json()
-        })
-        .then(function (data) {
-            console.log(data)
-            if(data != null){
-              localStorage.removeItem('token')
-              token.value = localStorage.getItem('token')
-            }
-        })
-        .then(function (error) {
-            console.log(error)
-    });
+  // function logout(){
+  //   localStorage.removeItem('token')
+  //   token.value = localStorage.getItem('token')
+  //   console.log(token.value)
+  // }
+
+  function myProfile(){
+    token.value = localStorage.getItem('token')
+    if (token.value){
+        user_id.value = (jwtDecode(token.value).user_id);
+    }
+    console.log(user_id.value)
+    return user_id.value
   }
 
-  function getCsrf(){
-        fetch('/api/v1/csrf-token')
-        .then((response) => response.json())
-        .then((data) => {
-            console.log(data)
-            csrf_token.value = data.csrf_token;
-        })
-    }
+  // function getCsrf(){
+  //       fetch('/api/v1/csrf-token')
+  //       .then((response) => response.json())
+  //       .then((data) => {
+  //           console.log(data)
+  //           csrf_token.value = data.csrf_token;
+  //       })
+  //   }
 </script>
 
 <style>

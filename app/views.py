@@ -27,7 +27,6 @@ def token_required(f):
         if not 'Authorization' in request.headers:
             return jsonify({"error": "Incorrent token!"}), 400
         token = request.headers['Authorization'].split()[1]
-        print(token)
         try:
             token = jwt.decode(
                 token,
@@ -129,15 +128,16 @@ def logout():
 def user_posts(user_id):
     form = PostForm()
     if request.method == 'GET':
+        message = None
         token = request.headers['authorization'].split()[1]
         token = jwt.decode(token, app.config['SECRET_KEY'], 'HS256')
-        posts = db.session.execute(db.select(Post)).scalars()
-        if not posts:
-            posts = {"error":"There are no posts to view"}        
+        posts = db.session.execute(db.select(Post.photo).filter_by(user_id=user_id)).all()
+        if posts == []:
+            message = "There are no posts to view"
+            posts = None      
             posts_count = "0"
         else:
             posts = [{'photo':"/api/v1/posts/"+post.photo} for post in posts]
-            print(posts)
             posts_count = str(len(posts))
 
         user = db.session.execute(db.select(UserProfile).filter_by(id=user_id)).scalar()
@@ -145,6 +145,7 @@ def user_posts(user_id):
         followers = len(db.session.execute(db.select(Follows).filter_by(user_id=user_id)).all())
 
         return jsonify({
+            "message":message,
             "posts":posts,
             "user":{
                 "firstname":user.firstname,

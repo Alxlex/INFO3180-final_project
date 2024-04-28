@@ -46,6 +46,10 @@
     const error = ref(null)
 
     onMounted(() => {
+        if(localStorage.getItem('reloaded') == 'false'){
+            localStorage.setItem('reloaded', 'true')
+            window.location.reload()
+        }
         token.value = localStorage.getItem("token")
         getPosts();
         getUserId();
