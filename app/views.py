@@ -82,7 +82,7 @@ def register():
             filename)
         )
 
-        joined_on = datetime.datetime.now()
+        joined_on = datetime.datetime.now().strftime("%B %Y")
 
         user = UserProfile(
             username,

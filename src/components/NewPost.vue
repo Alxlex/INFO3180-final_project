@@ -21,7 +21,7 @@
                 <label for="caption" class="form-label">Caption</label>
                 <textarea type="text" class="form-control" name="caption" placeholder="Write a caption..."></textarea>
             </div>
-            <button class="btn btn-primary" type="submit">Submit</button>
+            <button class="btn btn-primary" type="submit" id="Post">Submit</button>
         </form>
     </div>
 </template>
@@ -83,3 +83,4 @@
         });
     }
 </script>
+

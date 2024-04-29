@@ -8,13 +8,14 @@
     <div id="welcome" class="border shadow p-3 mb-5 bg-white rounded ">
       <div class="text-center">
         <div>
-          <img src="/src/assets/photogram_logo.png" alt="Phorogram Camera Logo">
-          <h1>Photogram</h1>
+         <h1> <img src="/src/assets/photogram_logo.png" alt="Phorogram Camera Logo"> Photogram</h1>
+          
         </div>
         <hr>
+        
         <p>{{ welcomeMessage }}</p>
-        <button @click="$router.push('/register')" type="button" class="btn btn-primary">Register</button>
-        <button @click="$router.push('/login')" type="button" class="btn btn-secondary">Login</button>
+        <button @click="$router.push('/register')" type="button" class="btn btn-primary neon-green">Register</button>
+        <button @click="$router.push('/login')" type="button" class="btn btn-secondary aqua-blue">Login</button>
       </div>
     </div>
   </div>
@@ -22,18 +23,46 @@
 </template>
 
 <style>
-/* Add any component specific styles here */
+
   div.text-center img {
-    height: 20px;
-    width: 20px;
+   
+    height: 30px;
+    width: 30px;
+   
   }
 
   img {
-    height: 40%;
-    width: 40%;
+    height: 300px;
+    width:50%;
+    margin-right: 20px;
+    border-radius: 5px;
   }
 
   div.container {
-    height: 60%;
+    margin-left: 2%;
+    margin-top: 20%;
+    height: 350px;
+    width: 400%;
+    padding-right: 20%;
+    
+   
   }
+  .neon-green {
+  background-color: #39FF14;
+  border: none;
+  width:150px;
+  margin-right: 20px;
+  }
+  .aqua-blue{
+  background-color:blue ;
+  border: none;
+  width:150px;
+  }
+  h1 {
+  font-family: 'Brush Script MT', 'Brush Script Std', cursive;
+  font-size: 30px;
+}
+p{
+  text-align: left;
+}
 </style>
