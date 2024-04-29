@@ -166,6 +166,10 @@
     overflow: hidden;
 }
  
+a{
+    text-decoration: none;
+}
+
 #Post{
     width: 200px;
     margin-bottom: 20px;
