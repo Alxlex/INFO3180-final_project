@@ -6,7 +6,7 @@
             <div class="profile-top-middle">
                 <p  id= "name" class="card-text">{{ user['firstname'] +" "+ user['lastname']}}</p>
                 <p class="card-text">{{ user['location'] }}</p>
-                <p class="card-text">{{ user['joined_on'] }}</p>
+                <p class="card-text"> Memeber since {{ user['joined_on'] }}</p>
                 <p class="card-text">{{ user['biography'] }}</p>
             </div>
             <div class=" profile-right">
@@ -28,7 +28,7 @@
             
           
         </div>
-        <div v-if="posts != null" class="card-deck">
+        <div v-if="posts != null" class="images">
             <div v-for="post in posts" class="card">
                 <img :src="post['photo']" alt="Post Image" class="card-img-top">
             </div>
@@ -104,12 +104,13 @@
 </script>
 <style>
 .profile-top{
+    margin-top: 0px;
     display: flex;
     flex-direction: row;
     border: 2px solid lightgrey;
     border-radius: 5px;
     margin-bottom: 30px;
-    width: 50em;
+    width: 60em;
     
 }
 
@@ -157,4 +158,16 @@
     flex-direction: column;
 }
 
+.images {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 20px;
+    width: 60em
+}
+
+.card-img-top {
+    width: 100%;
+    height: 250px;
+    
+}
 </style>

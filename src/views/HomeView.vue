@@ -33,7 +33,7 @@
 
   img {
     height: 300px;
-    width:50%;
+    width:500px;
     margin-right: 20px;
     border-radius: 5px;
   }
@@ -42,7 +42,7 @@
     margin-left: 2%;
     margin-top: 20%;
     height: 350px;
-    width: 400%;
+    width: 1000px;
     padding-right: 20%;
     
    

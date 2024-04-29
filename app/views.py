@@ -82,7 +82,7 @@ def register():
             filename)
         )
 
-        joined_on = datetime.datetime.now().strftime("%B %Y")
+        joined_on = datetime.datetime.now()
 
         user = UserProfile(
             username,
@@ -151,7 +151,7 @@ def user_posts(user_id):
                 "firstname":user.firstname,
                 "lastname":user.lastname,
                 "location":user.location,
-                "joined_on":user.joined_on,
+                "joined_on":user.joined_on.strftime("%B %Y"),
                 "biography":user.biography,
                 "profile_photo":"/api/v1/users/"+user.profile_photo,
                 "postcount":posts_count},

@@ -136,8 +136,6 @@
 }
 .card-body img {
  display: flex;
- width: 100%;
- height: 30em;
  flex-wrap: wrap;
   object-fit: cover; }
 
