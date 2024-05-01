@@ -1,3 +1,4 @@
+<!-- Patrick actually committed this thorugh alex laptop, glitches happening on the mac-->
 <template>
     <div v-if="msg != null">
         <div v-if="msg['errors']" class="alert alert-danger" role="alert">
