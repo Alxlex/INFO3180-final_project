@@ -1,0 +1,2 @@
+You can ugnore this file. I just had it there to ensure I am in the colaborators because when I committed from Alex's PC, even though I was signed in my Github. I didn't ensure that I made a new profile on his PC 
+I, Patrick Bucknor did the Register and Login styling

@@ -92,4 +92,7 @@
     height: 20px;
     width: 20px;
   }
+  .navbar{
+    margin-bottom:10%;
+  }
 </style>

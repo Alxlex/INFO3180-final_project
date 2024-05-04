@@ -1,5 +1,47 @@
+<script setup>
+import { ref, onMounted } from "vue";
+
+const csrf_token = ref("");
+const msg = ref(null);
+
+onMounted(() =>{
+    getCsrf()
+});
+
+function getCsrf(){
+    fetch('/api/v1/csrf-token')
+    .then((response) => response.json())
+    .then((data) => {
+        csrf_token.value = data.csrf_token;
+    })
+}
+
+function registerUser(){
+    let registerForm = document.getElementById('registerForm');
+    let form_data = new FormData(registerForm);
+
+    fetch('/api/v1/register', {
+        method: 'POST',
+        body: form_data,
+        headers: {
+            'X-CSRFToken': csrf_token.value
+        }
+    })
+    .then(function (response) {
+        return response.json();
+    })
+    .then(function (data){
+        msg.value = data;
+    })
+    .catch(function (error) {
+        console.log(error)
+    });
+}
+</script>
 <template>
-    <div v-if="msg != null">
+  <div class="container">
+
+  <div v-if="msg != null">
         <div v-if="msg['errors']" class="alert alert-danger" role="alert">
             <li v-for="err in msg['errors']"> {{ err }} </li>
         </div>
@@ -43,45 +85,10 @@
         </div>
         <button class="btn btn-primary" type="submit">Register</button>
     </form>
+</div> 
 </template>
 
-<script setup>
-    import { ref, onMounted } from "vue";
 
-    const csrf_token = ref("");
-    const msg = ref(null);
+<style>
 
-    onMounted(() =>{
-        getCsrf()
-    });
-
-    function getCsrf(){
-        fetch('/api/v1/csrf-token')
-        .then((response) => response.json())
-        .then((data) => {
-            csrf_token.value = data.csrf_token;
-        })
-    }
-
-    function registerUser(){
-        let registerForm = document.getElementById('registerForm');
-        let form_data = new FormData(registerForm);
-
-        fetch('/api/v1/register', {
-            method: 'POST',
-            body: form_data,
-            headers: {
-                'X-CSRFToken': csrf_token.value
-            }
-        })
-        .then(function (response) {
-            return response.json();
-        })
-        .then(function (data){
-            msg.value = data;
-        })
-        .catch(function (error) {
-            console.log(error)
-        });
-    }
-</script>
+</style>

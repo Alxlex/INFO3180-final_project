@@ -1,4 +1,6 @@
 <template>
+    <AppHeader /> 
+    
     <div v-if="msg != null">
         <div v-if="msg['errors']" class="alert alert-danger" role="alert">
             <p> {{ msg['errors'] }} </p>
