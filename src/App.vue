@@ -5,8 +5,8 @@ import AppFooter from "@/components/AppFooter.vue";
 </script>
 
 <template>
-  <AppHeader />
-
+  
+  <AppHeader /> 
   <main>
     <RouterView />
   </main>
@@ -14,8 +14,3 @@ import AppFooter from "@/components/AppFooter.vue";
   <AppFooter />
 </template>
 
-<style>
-body {
-  padding-top: 75px;
-}
-</style>
